@@ -1,0 +1,12 @@
+{
+  "name": "small_app",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun run --hot index.js",
+    "start": "bun run index.js"
+  },
+  "devDependencies": {},
+  "peerDependencies": {}
+}

@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#6366f1" />
+
+    <title>✨ Todos</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --surface: #0f0f14;
+        --surface-2: #1a1a22;
+        --surface-3: #25252f;
+        --border: #2d2d3a;
+        --text: #e8e8f0;
+        --text-muted: #9ca3af;
+        --accent: #6366f1;
+        --success: #10b981;
+        --danger: #ef4444;
+        --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+          0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+          0 4px 6px -4px rgb(0 0 0 / 0.1);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+          sans-serif;
+        margin: 0;
+        background: var(--surface);
+        color: var(--text);
+        background-image: radial-gradient(
+          circle at 1px 1px,
+          rgba(255, 255, 255, 0.05) 1px,
+          transparent 0
+        );
+        background-size: 20px 20px;
+        min-height: 100vh;
+      }
+      .wrap {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        animation: fadeIn 0.6s ease-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes slideIn {
+        from {
+          transform: translateX(-10px);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      @keyframes bounce {
+        0%,
+        20%,
+        50%,
+        80%,
+        100% {
+          transform: translateY(0);
+        }
+        40% {
+          transform: translateY(-3px);
+        }
+        60% {
+          transform: translateY(-2px);
+        }
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 32px;
+        padding: 24px 0;
+        background: var(--primary);
+        border-radius: 16px;
+        padding: 24px 32px;
+        box-shadow: var(--shadow-lg);
+        position: relative;
+        overflow: hidden;
+      }
+      header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          45deg,
+          rgba(255, 255, 255, 0.1) 0%,
+          transparent 100%
+        );
+        pointer-events: none;
+      }
+      h1 {
+        font-size: 28px;
+        margin: 0;
+        font-weight: 700;
+        color: white;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+      .user-info {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 14px;
+      }
+
+      .row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+      input[type="text"],
+      input[type="email"],
+      input[type="password"],
+      input[type="search"] {
+        flex: 1;
+        padding: 14px 16px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: var(--surface-2);
+        color: var(--text);
+        font-size: 14px;
+        transition: all 0.2s ease;
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+      }
+      input:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        background: var(--surface-3);
+      }
+
+      button {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 14px;
+        transition: all 0.2s ease;
+        background: var(--surface-3);
+        color: var(--text);
+        box-shadow: var(--shadow);
+      }
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-lg);
+      }
+      button:active {
+        transform: translateY(0);
+      }
+      button.primary {
+        background: var(--accent);
+        color: white;
+      }
+      button.primary:hover {
+        background: #5855eb;
+      }
+      button.danger {
+        background: var(--danger);
+        color: white;
+      }
+      button.success {
+        background: var(--success);
+        color: white;
+      }
+
+      .search-box {
+        position: relative;
+        margin-bottom: 20px;
+      }
+      .search-box input {
+        padding-left: 44px;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23666'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: 14px center;
+        background-size: 18px;
+      }
+
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 12px;
+      }
+      li {
+        display: grid;
+        grid-template-columns: 32px 1fr auto;
+        align-items: center;
+        gap: 16px;
+        padding: 16px 20px;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        background: var(--surface-2);
+        transition: all 0.2s ease;
+        position: relative;
+        animation: slideIn 0.3s ease-out;
+        box-shadow: var(--shadow);
+      }
+      li:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--accent);
+      }
+      li.done {
+        opacity: 0.7;
+      }
+      li.done .title {
+        text-decoration: line-through;
+        color: var(--text-muted);
+      }
+
+      .title {
+        outline: none;
+        border: none;
+        background: transparent;
+        color: inherit;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+      }
+      .title:focus {
+        background: var(--surface-3);
+        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+      }
+
+      .checkbox {
+        width: 20px;
+        height: 20px;
+        border: 2px solid var(--border);
+        border-radius: 6px;
+        background: var(--surface);
+        cursor: pointer;
+        position: relative;
+        transition: all 0.2s ease;
+      }
+      .checkbox:checked {
+        background: var(--success);
+        border-color: var(--success);
+        animation: bounce 0.6s ease;
+      }
+      .checkbox:checked::after {
+        content: "✓";
+        position: absolute;
+        top: -2px;
+        left: 2px;
+        color: white;
+        font-size: 14px;
+        font-weight: bold;
+      }
+
+      .toolbar {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        justify-content: space-between;
+        margin: 24px 0;
+        padding: 16px 20px;
+        background: var(--surface-2);
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+      }
+      .filters {
+        display: flex;
+        gap: 8px;
+      }
+      .filters button {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 13px;
+      }
+      .filters .active {
+        background: var(--accent);
+        color: white;
+      }
+
+      .auth {
+        max-width: 400px;
+        margin: 60px auto;
+        padding: 32px;
+        background: var(--surface-2);
+        border-radius: 20px;
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--border);
+      }
+      .auth h2 {
+        text-align: center;
+        margin-bottom: 24px;
+        color: var(--text);
+      }
+
+      .stats {
+        display: flex;
+        gap: 16px;
+        font-size: 13px;
+        color: var(--text-muted);
+        align-items: center;
+      }
+      .error {
+        color: var(--danger);
+        font-size: 13px;
+        margin-top: 8px;
+      }
+      .hidden {
+        display: none !important;
+      }
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--text-muted);
+        background: var(--surface-2);
+        border-radius: 16px;
+        margin: 20px 0;
+      }
+      .empty-state svg {
+        width: 64px;
+        height: 64px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+      }
+
+      .kbd {
+        background: var(--surface-3);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 2px 6px;
+        font-size: 11px;
+        font-family: monospace;
+        color: var(--text-muted);
+      }
+
+      @media (max-width: 640px) {
+        .wrap {
+          padding: 16px;
+        }
+        header {
+          padding: 20px;
+          margin-bottom: 24px;
+        }
+        h1 {
+          font-size: 24px;
+        }
+        .toolbar {
+          flex-direction: column;
+          gap: 12px;
+          align-items: stretch;
+        }
+        .filters {
+          justify-content: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1>✨ Todos</h1>
+        <div class="user-info">
+          <div id="userEmail"></div>
+          <button
+            id="logoutBtn"
+            class="hidden danger"
+            style="margin-top: 8px; padding: 8px 16px"
+          >
+            Logout
+          </button>
+        </div>
+      </header>
+
+      <section id="authSection" class="auth">
+        <h2>Welcome Back</h2>
+        <div style="display: grid; gap: 16px">
+          <input id="email" type="email" placeholder="Email address" />
+          <input
+            id="password"
+            type="password"
+            placeholder="Password (min 6 chars)"
+          />
+          <div class="row">
+            <button id="loginBtn" class="primary">Sign In</button>
+            <button id="registerBtn">Create Account</button>
+          </div>
+        </div>
+        <div id="authError" class="error"></div>
+      </section>
+
+      <section id="appSection" class="hidden">
+        <div class="row" style="margin-bottom: 20px">
+          <input
+            id="newTitle"
+            type="text"
+            placeholder="What needs to be done? Press Enter to add..."
+            maxlength="140"
+          />
+          <button id="addBtn" class="primary">Add Todo</button>
+        </div>
+
+        <div class="search-box">
+          <input id="searchInput" type="search" placeholder="Search todos..." />
+        </div>
+
+        <div class="toolbar">
+          <div class="filters">
+            <button data-filter="all" class="active">All</button>
+            <button data-filter="active">Active</button>
+            <button data-filter="done">Completed</button>
+          </div>
+          <div class="stats">
+            <div id="count"></div>
+            <button
+              id="clearDone"
+              class="danger"
+              style="padding: 6px 12px; font-size: 12px"
+            >
+              Clear Completed
+            </button>
+          </div>
+        </div>
+
+        <ul id="list"></ul>
+        <div id="emptyState" class="empty-state hidden">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.5"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <div>No todos yet. Add one above to get started!</div>
+          <div style="margin-top: 8px; font-size: 12px">
+            Tip: Press <span class="kbd">Ctrl+K</span> to focus search
+          </div>
+        </div>
+      </section>
+    </div>
+    <script>
+      const api = {
+        async me() {
+          const r = await fetch("/api/me");
+          if (r.ok) return r.json();
+          throw new Error("unauth");
+        },
+        async login(email, password) {
+          const r = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ email, password }),
+          });
+          if (!r.ok) throw await r.json();
+          return r.json();
+        },
+        async register(email, password) {
+          const r = await fetch("/api/auth/register", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ email, password }),
+          });
+          if (!r.ok) throw await r.json();
+          return r.json();
+        },
+        async logout() {
+          await fetch("/api/auth/logout", { method: "POST" });
+        },
+        async list() {
+          return fetch("/api/todos").then((r) => r.json());
+        },
+        async create(title) {
+          return fetch("/api/todos", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ title }),
+          }).then((r) => r.json());
+        },
+        async update(id, data) {
+          return fetch(`/api/todos/${id}`, {
+            method: "PATCH",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(data),
+          }).then((r) => r.json());
+        },
+        async remove(id) {
+          return fetch(`/api/todos/${id}`, { method: "DELETE" });
+        },
+      };
+
+      const els = {
+        auth: document.getElementById("authSection"),
+        app: document.getElementById("appSection"),
+        email: document.getElementById("email"),
+        password: document.getElementById("password"),
+        loginBtn: document.getElementById("loginBtn"),
+        registerBtn: document.getElementById("registerBtn"),
+        logoutBtn: document.getElementById("logoutBtn"),
+        userEmail: document.getElementById("userEmail"),
+        list: document.getElementById("list"),
+        newTitle: document.getElementById("newTitle"),
+        addBtn: document.getElementById("addBtn"),
+        count: document.getElementById("count"),
+        clearDone: document.getElementById("clearDone"),
+        authError: document.getElementById("authError"),
+        searchInput: document.getElementById("searchInput"),
+        emptyState: document.getElementById("emptyState"),
+        filterButtons: () =>
+          Array.from(document.querySelectorAll(".filters button")),
+      };
+
+      let currentUser = null;
+      let filter = "all";
+      let searchTerm = "";
+      let allTodos = [];
+
+      function setVisible(el, show) {
+        el.classList.toggle("hidden", !show);
+      }
+
+      function setActiveFilter(name) {
+        filter = name;
+        els
+          .filterButtons()
+          .forEach((b) =>
+            b.classList.toggle("active", b.dataset.filter === name)
+          );
+        renderTodos();
+      }
+
+      function renderCount(items) {
+        const left = items.filter((t) => !t.done).length;
+        const total = items.length;
+        els.count.textContent = `${left} active • ${total} total`;
+      }
+
+      function liTemplate(todo) {
+        const li = document.createElement("li");
+        li.dataset.id = todo.id;
+        if (todo.done) li.classList.add("done");
+
+        const box = document.createElement("input");
+        box.type = "checkbox";
+        box.className = "checkbox";
+        box.checked = todo.done;
+        box.addEventListener("change", async () => {
+          box.disabled = true;
+          await api.update(todo.id, { done: box.checked });
+          await loadTodos();
+          box.disabled = false;
+        });
+
+        const title = document.createElement("input");
+        title.className = "title";
+        title.value = todo.title;
+        title.maxLength = 140;
+        title.addEventListener("keydown", async (e) => {
+          if (e.key === "Enter") {
+            const v = title.value.trim();
+            if (!v) return;
+            title.disabled = true;
+            await api.update(todo.id, { title: v });
+            await loadTodos();
+            title.disabled = false;
+          }
+          if (e.key === "Escape") {
+            title.value = todo.title;
+            title.blur();
+          }
+        });
+
+        const right = document.createElement("div");
+        right.className = "right";
+        const del = document.createElement("button");
+        del.textContent = "×";
+        del.className = "danger";
+        del.style.cssText =
+          "padding: 4px 8px; font-size: 16px; border-radius: 6px;";
+        del.addEventListener("click", async () => {
+          if (!confirm("Delete this todo?")) return;
+          del.disabled = true;
+          await api.remove(todo.id);
+          await loadTodos();
+        });
+        right.appendChild(del);
+
+        li.appendChild(box);
+        li.appendChild(title);
+        li.appendChild(right);
+        return li;
+      }
+
+      async function loadTodos() {
+        if (!currentUser) return;
+        allTodos = await api.list();
+        renderTodos();
+      }
+
+      function renderTodos() {
+        let items = [...allTodos];
+
+        // Apply search filter
+        if (searchTerm) {
+          items = items.filter((t) =>
+            t.title.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+        }
+
+        // Apply status filter
+        if (filter === "active") items = items.filter((t) => !t.done);
+        if (filter === "done") items = items.filter((t) => t.done);
+
+        els.list.innerHTML = "";
+        items.forEach((t) => els.list.appendChild(liTemplate(t)));
+
+        setVisible(els.emptyState, items.length === 0);
+        renderCount(allTodos);
+      }
+
+      // Event Listeners
+      els.addBtn.addEventListener("click", async () => {
+        const v = els.newTitle.value.trim();
+        if (!v) return;
+        els.addBtn.disabled = true;
+        await api.create(v);
+        els.newTitle.value = "";
+        await loadTodos();
+        els.addBtn.disabled = false;
+        els.newTitle.focus();
+      });
+
+      els.newTitle.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") els.addBtn.click();
+      });
+
+      els.searchInput.addEventListener("input", (e) => {
+        searchTerm = e.target.value;
+        renderTodos();
+      });
+
+      els.clearDone.addEventListener("click", async () => {
+        const doneItems = allTodos.filter((i) => i.done);
+        if (!doneItems.length) return;
+        if (!confirm(`Delete ${doneItems.length} completed todos?`)) return;
+        els.clearDone.disabled = true;
+        await Promise.all(doneItems.map((i) => api.remove(i.id)));
+        await loadTodos();
+        els.clearDone.disabled = false;
+      });
+
+      els
+        .filterButtons()
+        .forEach((b) =>
+          b.addEventListener("click", () => setActiveFilter(b.dataset.filter))
+        );
+
+      // Keyboard shortcuts
+      document.addEventListener("keydown", (e) => {
+        if (e.ctrlKey || e.metaKey) {
+          if (e.key === "k") {
+            e.preventDefault();
+            els.searchInput.focus();
+            els.searchInput.select();
+          }
+          if (e.key === "n") {
+            e.preventDefault();
+            els.newTitle.focus();
+          }
+        }
+      });
+
+      // Auth handlers
+      async function handleAuth(isLogin) {
+        els.authError.textContent = "";
+        const email = els.email.value.trim();
+        const password = els.password.value;
+
+        if (!email || !password) {
+          els.authError.textContent = "Please fill in all fields";
+          return;
+        }
+
+        try {
+          els.loginBtn.disabled = els.registerBtn.disabled = true;
+          const u = isLogin
+            ? await api.login(email, password)
+            : await api.register(email, password);
+          currentUser = u;
+          els.userEmail.textContent = u.email;
+          els.logoutBtn.classList.remove("hidden");
+          setVisible(els.auth, false);
+          setVisible(els.app, true);
+          await loadTodos();
+          els.newTitle.focus();
+        } catch (e) {
+          els.authError.textContent =
+            e?.error || (isLogin ? "Login failed" : "Registration failed");
+        } finally {
+          els.loginBtn.disabled = els.registerBtn.disabled = false;
+        }
+      }
+
+      els.loginBtn.addEventListener("click", () => handleAuth(true));
+      els.registerBtn.addEventListener("click", () => handleAuth(false));
+
+      els.email.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") els.password.focus();
+      });
+      els.password.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") handleAuth(true);
+      });
+
+      els.logoutBtn.addEventListener("click", async () => {
+        await api.logout();
+        currentUser = null;
+        allTodos = [];
+        searchTerm = "";
+        els.userEmail.textContent = "";
+        els.logoutBtn.classList.add("hidden");
+        els.searchInput.value = "";
+        setVisible(els.auth, true);
+        setVisible(els.app, false);
+        els.email.focus();
+      });
+
+      // Boot sequence
+      async function boot() {
+        try {
+          currentUser = await api.me();
+          els.userEmail.textContent = currentUser.email;
+          els.logoutBtn.classList.remove("hidden");
+          setVisible(els.auth, false);
+          setVisible(els.app, true);
+          await loadTodos();
+          els.newTitle.focus();
+        } catch {
+          setVisible(els.auth, true);
+          setVisible(els.app, false);
+          els.email.focus();
+        }
+      }
+
+      boot();
+    </script>
+  </body>
+</html>
